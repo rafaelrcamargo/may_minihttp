@@ -77,7 +77,7 @@ fn nonblock_read(stream: &mut impl Read, req_buf: &mut BytesMut) -> io::Result<u
     loop {
         let read_buf: &mut [u8] = unsafe { std::mem::transmute(&mut *req_buf.chunk_mut()) };
         match stream.read(read_buf) {
-            Ok(0) => return Err(io::Error::new(io::ErrorKind::BrokenPipe, "closed")),
+            Ok(0) => return Ok(read_cnt), // May need to ignore broken pipes for the purpose of skipping body's
             Ok(n) => {
                 read_cnt += n;
                 unsafe { req_buf.advance_mut(n) };
